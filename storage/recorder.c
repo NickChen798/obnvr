@@ -65,7 +65,6 @@ int		grab_flag = 0;
 int		count = 1;
 //u8		temp_data[400000];
 static char *plate_str[32] = {0};
-static BYTE		jbuf[1000000];
 char			time_path[256];
 char			my_ip[32];
 u32				my_ipaddress;
@@ -332,7 +331,8 @@ static int rec_release(rec_t *r)
 static int rec_callback(void *priv, void *header, u8 *data)
 {
 	char				log_msg[256];
-	BYTE				buf_test[1000000];
+	BYTE				buf_test[500000];
+	BYTE				jbuf[500000];
 	int					psize;
 	int					jsize;
 	int					go = 0;
@@ -359,44 +359,45 @@ static int rec_callback(void *priv, void *header, u8 *data)
 	r->heigh = fh->height;
 	r->width = fh->width;
 	jsize = (r->heigh)*(r->width);
-	memset(jbuf,0,1000000);
-	memset(buf_test,0,1000000);
+	memset(jbuf,0,500000);
+	memset(buf_test,0,500000);
 	if (data[0]== 00 && data[1]== 00 && data[2]==00 && data[3]==01 && data[4]==103){go = 1;} 
 	else if(data[0]== 00 && data[1]== 00 && data[2]==00 && data[3]==01 && data[4]==97){go = 1;}
 	else{go = 0;}
-	if (r->motion_state==1 && go == 1)
-	{
-		if (rcount[rid].m_count<5)
-		{
-			memcpy(buf_test,data,jsize);
-			psize = h264tojpeg(buf_test, jsize , jbuf, jsize, 0, 0, r->width, r->heigh,0,0);
-			sprintf(log_msg,"[RC] %d real size = %d,Out size = %d,x = %d,y = %d,width = %d,height = %d\n",rcount[rid].m_count, jsize, psize, 0, 0,r->width, r->heigh);
-			Write_Log(0,log_msg);
-			if (psize>0 )
-			{
-				FILE *fp1;
-				char mpath[256];
-				mk_jpegname(time_path, r->ip-171256576, now.tv_sec);
-				sprintf(mpath,"/dbg/vs/%s-%s-%d.jpg",my_ip,time_path,rcount[rid].m_count);
-				//printf("%s\n",mpath);
-				if(fp1 = fopen(mpath,"wb"))
-				{
-					fwrite(jbuf,psize,1,fp1);
-					fclose(fp1);
-				}
-				rcount[rid].m_count++;
-			}
-		}
-		else
-		{
-			r->motion_state=0;
-			rcount[rid].m_count = 0;
-		}
-	}
 	
 	if (rec_fps[r->rid] == 0 && go == 1)
 	{
-
+		//Motion 
+		if (r->motion_state==1)
+		{
+			if (rcount[rid].m_count<5)
+			{
+				memcpy(buf_test,data,jsize);
+				psize = h264tojpeg(buf_test, jsize , jbuf, jsize, 0, 0, r->width, r->heigh,0,0);
+				sprintf(log_msg,"[RC] %d real size = %d,Out size = %d,x = %d,y = %d,width = %d,height = %d\n",rcount[rid].m_count, jsize, psize, 0, 0,r->width, r->heigh);
+				Write_Log(0,log_msg);
+				if (psize>0 )
+				{
+					FILE *fp1;
+					char mpath[256];
+					mk_jpegname(time_path, r->ip-171256576, now.tv_sec);
+					sprintf(mpath,"/dbg/vs/%s-%s-%d.jpg",my_ip,time_path,rcount[rid].m_count);
+					//printf("%s\n",mpath);
+					if(fp1 = fopen(mpath,"wb"))
+					{
+						fwrite(jbuf,psize,1,fp1);
+						fclose(fp1);
+					}
+					rcount[rid].m_count++;
+				}
+			}
+			else
+			{
+				r->motion_state=0;
+				rcount[rid].m_count = 0;
+			}
+		}
+		//
 		sprintf(log_msg,"[RC] [IN] heigh %d width = %d jsize = %d \n", r->heigh , r->width,jsize);
 		Write_Log(0,log_msg);	
 		//sprintf(log_msg,"[Buffer Bytes] %u %u %u %u %u\n",data[0],data[1],data[2],data[3],data[4]);
