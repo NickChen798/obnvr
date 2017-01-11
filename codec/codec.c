@@ -76,7 +76,7 @@ typedef struct
 static int c_index = 0;
 static pthread_mutex_t i_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t c_mutex[CH_NR];
-deter_byte	d_byte[25];
+deter_byte	d_byte[1];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 BOOL WINAPI JRDetectionEdge( LPBYTE lpIn, LPBYTE lpOut, int nWidth, int nHeight, LPRECT lpBound, int vvv)
@@ -285,13 +285,13 @@ static int codec_sys_init(void)
 
 #if 1 // only FHD
     // FHD
-	for (z=0;z<25;z++)
-	{
-		d_byte[z].lpByte = malloc(1000000);
-		d_byte[z].lpByte2 = malloc(1000000);
-		memset(d_byte[z].lpByte,0,1000000);
-		memset(d_byte[z].lpByte2,0,1000000);
-	}	
+	//for (z=0;z<25;z++)
+	//{
+	//	d_byte[z].lpByte = malloc(1000000);
+	//	d_byte[z].lpByte2 = malloc(1000000);
+	//	memset(d_byte[z].lpByte,0,1000000);
+	//	memset(d_byte[z].lpByte2,0,1000000);
+	//}	
 
 	Write_Log(0,"[CODEC] INIT \n");
     vb_conf.astCommPool[i].u32BlkSize = (1920 * 1088 * 3) >> 1;
@@ -1060,8 +1060,8 @@ void sample_yuv_dump(VIDEO_FRAME_S * pVBuf, FILE *pfd,int id)
     unsigned int w, h;
 	int	i,j;
 	char				log_msg[256];
-	LPBYTE    lpByte_tmp;
-	LPBYTE	  lpByte3;
+	//LPBYTE    lpByte_tmp;
+	//LPBYTE	  lpByte3;
 	RECT	  lpSrc[1];
     char * pVBufVirt_Y;
     char * pVBufVirt_C;
@@ -1071,8 +1071,8 @@ void sample_yuv_dump(VIDEO_FRAME_S * pVBuf, FILE *pfd,int id)
 	HI_CHAR *pUserPageAddr[2];
     PIXEL_FORMAT_E  enPixelFormat = pVBuf->enPixelFormat;
     HI_U32 u32UvHeight;/* height of UV when planar format*/
-	lpByte_tmp = malloc(3000000);
-	lpByte3 = malloc(1000000);
+	//lpByte_tmp = malloc(3000000);
+	//lpByte3 = malloc(1000000);
 		
 	lpSrc[0].left = 0;
 	lpSrc[0].bottom = pVBuf->u32Height/2-1;
@@ -1098,22 +1098,22 @@ void sample_yuv_dump(VIDEO_FRAME_S * pVBuf, FILE *pfd,int id)
     {
         return ;
     }
+	fwrite(pUserPageAddr[0], size, 1, pfd);
+	//memcpy(lpByte_tmp,(BYTE*)pUserPageAddr[0],size);
+	//for (i=0;i<pVBuf->u32Height;i++)
+	//{
+	//	for (j=0;j<640;j++)
+	//	{
+	//		lpByte3[640*i+j]=lpByte_tmp[1920*i+j];
+	//		//printf("%u:%u ",lpByte2[j],lpByte_tmp[j]);
+	//	}
+	//		//printf("\n");
+	//}
 
-	memcpy(lpByte_tmp,(BYTE*)pUserPageAddr[0],size);
-	for (i=0;i<pVBuf->u32Height;i++)
-	{
-		for (j=0;j<640;j++)
-		{
-			lpByte3[640*i+j]=lpByte_tmp[1920*i+j];
-			//printf("%u:%u ",lpByte2[j],lpByte_tmp[j]);
-		}
-			//printf("\n");
-	}
-
-	JRDetectionEdge(lpByte3,d_byte[id].lpByte2,640,480,lpSrc,2);
-    fwrite(d_byte[id].lpByte2, 640*480, 1, pfd);
-	free(lpByte_tmp);
-	free(lpByte3);
+	//JRDetectionEdge(lpByte3,d_byte[id].lpByte2,640,480,lpSrc,2);
+ //   fwrite(d_byte[id].lpByte2, 640*480, 1, pfd);
+	//free(lpByte_tmp);
+	//free(lpByte3);
 /*
 	pVBufVirt_Y = pUserPageAddr[0]; 
 	pVBufVirt_C = pVBufVirt_Y + (pVBuf->u32Stride[0])*(pVBuf->u32Height);

@@ -698,7 +698,7 @@ int main(int argc, char **argv)
 	//create_thread(scan_excist,0);
 	int					ch, ret, x,re,mkd;
 	int					V_F_count = 0;
-	int					R_count = 0;
+	//int					R_count = 0;
 	int					Vs_state[MAX_CH+1];
 	char				section[16], tmp[64], time_path[128];
 	char				time_buffer_now[128], path[16],time_tmp[16];
@@ -1014,9 +1014,6 @@ int main(int argc, char **argv)
 	{
 		sprintf(log_msg,"[MAIN] [Init] [ch%04d]  before rec --- ip =%d. \n", ch+1, vsc_lpr[ch].ip);
 		Write_Log(0,log_msg);
-		sprintf(log_msg,"[MAIN] [Motion] %d\n",park_list[ch]);
-		Write_Log(0,log_msg);
-
 	}
 
 	mcu_wdt_reset(WDT_MARGIN_TIME);
@@ -1182,7 +1179,7 @@ int main(int argc, char **argv)
 		{Write_Log(0,"[MAIN] mcu_wdt_reset fail\n");}
 		sleep(5);
 		V_F_count++;
-		R_count++;
+		//R_count++;
 		if (V_F_count == 35)
 		{
 			Ask_Vs_State(&Vs_state);
